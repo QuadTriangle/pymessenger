@@ -209,7 +209,7 @@ class Bot:
         Output:
             Response from API as <dict>
         """
-        return self.send_attachment(recipient_id, "audio", audio_path, notification_type)
+        return self.send_attachment(recipient_id, "image", audio_path, notification_type)
 
     def send_audio_url(self, recipient_id, audio_url, notification_type=NotificationType.regular):
         """Send audio to specified recipient using URL.
@@ -308,9 +308,6 @@ class Bot:
     def QuickReply_Send(self,user_id,text,reply_payload):
         # quick reply for messenger
         # this method sends the request to fb
-        params = {
-            "access_token":self.access_token,
-        }
         payload = {
           "recipient":{"id":user_id,},
           "message":{
@@ -318,14 +315,7 @@ class Bot:
             "quick_replies":reply_payload,
           }
         }
-        requests.post(
-            "https://graph.facebook.com/v2.6/me/messages",
-            params=params,
-            data=payload,
-            headers={
-                'Content-type': 'application/json'
-            }
-        )
+        self.send_raw(payload)
 
     # quick replies
     def QuickReply_CreatePayload(self,qk_payload):
@@ -344,13 +334,12 @@ class Bot:
             )
         return quick_btns
 
-    def send_quickreply(self,recipient_id,quick_reply_message,reply_options):
+    def send_quick_reply(self,recipient_id,quick_reply_message,reply_options):
         # use this method to send quick replies
         # this method puts everything together
         # automatically constructs the payload for the buttons from the list
-        reply_payload = QuickReply_CreatePayload(reply_options)
-        QuickReply_Send(token = token,
-            user_id = recipient_id,
+        reply_payload = self.QuickReply_CreatePayload(reply_options)
+        self.QuickReply_Send(user_id = recipient_id,
             text = "{}".format(quick_reply_message),
             reply_payload = reply_payload,
         )
